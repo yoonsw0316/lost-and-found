@@ -8,7 +8,7 @@
     {% for item in items %}
       <li>
         <strong>{{ item.item_name }}</strong> - {{ item.item_location }}<br>
-        <img src="{{ url_for('static', filename='uploads/' + item.photo_filename) }}" width="150"><br>
+        <img src="{{ url_for('static', filename='uploads/' + (item.photo_filename if item.photo_filename else 'default.jpg')) }}" width="150"><br>
         습득자: {{ item.found_by_name }} / 연락처: {{ item.found_by_contact }}
       </li>
     {% endfor %}

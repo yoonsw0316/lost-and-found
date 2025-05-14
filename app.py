@@ -106,5 +106,6 @@ def delete_item(item_id):
 # 초기화
 if __name__ == '__main__':
     with app.app_context():
-        db.create_all()  # 데이터베이스 테이블 생성
+        db.create_all()
+    # 개발 환경에서만 실행되도록 설정 (Cloudtype에서는 사용하지 않음)
     app.run(debug=True, port=5003)
