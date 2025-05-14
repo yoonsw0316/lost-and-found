@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html>
+<head><title>관리자 대시보드</title></head>
+<body>
+  <h1>관리자 - 습득물 관리</h1>
+  <ul>
+    {% for item in items %}
+      <li>
+        {{ item.item_name }} - {{ item.found_by_name }}
+        <a href="{{ url_for('delete_item', item_id=item.id) }}">삭제</a>
+      </li>
+    {% endfor %}
+  </ul>
+</body>
+</html>

@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head><title>습득물 목록</title></head>
+<body>
+  <h1>습득된 물품 목록</h1>
+  <a href="/add">습득물 등록</a> | <a href="/admin/login">관리자</a>
+  <ul>
+    {% for item in items %}
+      <li>
+        <strong>{{ item.item_name }}</strong> - {{ item.item_location }}<br>
+        <img src="{{ url_for('static', filename='uploads/' + item.photo_filename) }}" width="150"><br>
+        습득자: {{ item.found_by_name }} / 연락처: {{ item.found_by_contact }}
+      </li>
+    {% endfor %}
+  </ul>
+</body>
+</html>
