@@ -30,16 +30,25 @@ class FoundItem(db.Model):
     item_location = db.Column(db.String(100), nullable=False)
     found_by_name = db.Column(db.String(100), nullable=False)
     found_by_contact = db.Column(db.String(100), nullable=False)
-    acquisition_time = db.Column(db.String(100), nullable=False)  # acquisition_time 필드 추가
+    acquisition_time = db.Column(db.String(100), nullable=False)
     photo_filename = db.Column(db.String(100), nullable=True)
 
     def __repr__(self):
         return f'<FoundItem {self.id} - {self.item_name}>'
 
-# 메인 페이지
+# 메인 페이지 (검색 포함)
 @app.route('/')
 def index():
-    items = FoundItem.query.all()
+    query = request.args.get('q', '').strip()
+
+    if query:
+        items = FoundItem.query.filter(
+            (FoundItem.item_name.contains(query)) |
+            (FoundItem.item_location.contains(query))
+        ).all()
+    else:
+        items = FoundItem.query.all()
+        
     return render_template('index.html', items=items)
 
 # 습득물 등록 페이지
@@ -107,5 +116,4 @@ def delete_item(item_id):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    # 개발 환경에서만 실행되도록 설정 (Cloudtype에서는 사용하지 않음)
     app.run(debug=True, port=5003)
