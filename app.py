@@ -33,25 +33,32 @@ class FoundItem(db.Model):
     found_by_contact = db.Column(db.String(100), nullable=False)
     acquisition_time = db.Column(db.String(100), nullable=False)
     photo_filename = db.Column(db.String(100), nullable=True)
+    category = db.Column(db.String(50), nullable=True)  # ✅ 분류 필드 추가
 
     def __repr__(self):
         return f'<FoundItem {self.id} - {self.item_name}>'
 
-# 메인 페이지 (검색 포함)
+# 메인 페이지 (검색 및 분류 필터 포함)
 @app.route('/')
 def index():
     query = request.args.get('q', '').strip()
+    category_filter = request.args.get('category', '')
+
+    items_query = FoundItem.query
 
     if query:
-        items = FoundItem.query.filter(
+        items_query = items_query.filter(
             (FoundItem.item_name.contains(query)) |
             (FoundItem.item_location.contains(query)) |
-            (FoundItem.storage_location.contains(query))  # 검색 대상에 포함
-        ).all()
-    else:
-        items = FoundItem.query.all()
-        
-    return render_template('index.html', items=items)
+            (FoundItem.storage_location.contains(query))
+        )
+    
+    if category_filter:
+        items_query = items_query.filter(FoundItem.category == category_filter)
+
+    items = items_query.all()
+
+    return render_template('index.html', items=items, query=query, selected_category=category_filter)
 
 # 습득물 등록 페이지
 @app.route('/add', methods=['GET', 'POST'])
@@ -63,6 +70,7 @@ def add_item():
         storage_location = request.form['storage_location']
         found_by_name = request.form['found_by_name']
         found_by_contact = request.form['found_by_contact']
+        category = request.form['category']
         file = request.files.get('item_photo')
         photo_filename = None
 
@@ -77,7 +85,8 @@ def add_item():
             storage_location=storage_location,
             found_by_name=found_by_name,
             found_by_contact=found_by_contact,
-            photo_filename=photo_filename
+            photo_filename=photo_filename,
+            category=category
         )
         db.session.add(new_item)
         db.session.commit()

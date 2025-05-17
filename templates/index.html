@@ -27,11 +27,25 @@
     </div>
   </nav>
 
-  <!-- 검색창 -->
+  <!-- 검색창 + 분류 필터 -->
   <div class="container mb-3">
-    <form method="GET" action="/" class="d-flex">
-      <input type="text" name="q" class="form-control me-2" placeholder="물품 이름이나 장소를 입력하세요" value="{{ request.args.get('q', '') }}">
-      <button class="btn btn-outline-success" type="submit">🔍 검색</button>
+    <form method="GET" action="/" class="row g-2">
+      <div class="col-md-6">
+        <input type="text" name="q" class="form-control" placeholder="물품 이름이나 장소를 입력하세요" value="{{ request.args.get('q', '') }}">
+      </div>
+      <div class="col-md-3">
+        <select name="category" class="form-select">
+          <option value="">전체 분류</option>
+          <option value="학용품" {% if request.args.get('category') == '학용품' %}selected{% endif %}>학용품</option>
+          <option value="전자기기" {% if request.args.get('category') == '전자기기' %}selected{% endif %}>전자기기</option>
+          <option value="의류" {% if request.args.get('category') == '의류' %}selected{% endif %}>의류</option>
+          <option value="가방" {% if request.args.get('category') == '가방' %}selected{% endif %}>가방</option>
+          <option value="기타" {% if request.args.get('category') == '기타' %}selected{% endif %}>기타</option>
+        </select>
+      </div>
+      <div class="col-md-3">
+        <button class="btn btn-outline-success w-100" type="submit">🔍 검색</button>
+      </div>
     </form>
   </div>
 
@@ -56,6 +70,7 @@
               {% endif %}
               <p class="card-text">🕒 {{ item.acquisition_time }}</p>
               <p class="card-text">👤 {{ item.found_by_name }} | 📞 {{ item.found_by_contact }}</p>
+              <p class="card-text">🏷️ 분류: {{ item.category }}</p>
             </div>
           </div>
         </div>
