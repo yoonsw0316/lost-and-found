@@ -28,6 +28,7 @@ class FoundItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     item_name = db.Column(db.String(100), nullable=False)
     item_location = db.Column(db.String(100), nullable=False)
+    storage_location = db.Column(db.String(100), nullable=False)
     found_by_name = db.Column(db.String(100), nullable=False)
     found_by_contact = db.Column(db.String(100), nullable=False)
     acquisition_time = db.Column(db.String(100), nullable=False)
@@ -44,7 +45,8 @@ def index():
     if query:
         items = FoundItem.query.filter(
             (FoundItem.item_name.contains(query)) |
-            (FoundItem.item_location.contains(query))
+            (FoundItem.item_location.contains(query)) |
+            (FoundItem.storage_location.contains(query))  # 검색 대상에 포함
         ).all()
     else:
         items = FoundItem.query.all()
@@ -58,6 +60,7 @@ def add_item():
         item_name = request.form['item_name']
         acquisition_time = request.form['acquisition_time']
         item_location = request.form['item_location']
+        storage_location = request.form['storage_location']
         found_by_name = request.form['found_by_name']
         found_by_contact = request.form['found_by_contact']
         file = request.files.get('item_photo')
@@ -71,6 +74,7 @@ def add_item():
             item_name=item_name,
             acquisition_time=acquisition_time,
             item_location=item_location,
+            storage_location=storage_location,
             found_by_name=found_by_name,
             found_by_contact=found_by_contact,
             photo_filename=photo_filename
