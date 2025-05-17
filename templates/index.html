@@ -50,7 +50,10 @@
             <img src="{{ url_for('static', filename='uploads/' + (item.photo_filename if item.photo_filename else 'default.jpg')) }}" class="card-img-top" alt="습득물 사진">
             <div class="card-body">
               <h5 class="card-title">{{ item.item_name }}</h5>
-              <p class="card-text">🗺️ {{ item.item_location }}</p>
+              <p class="card-text">📍 습득 장소: {{ item.item_location }}</p>
+              {% if item.storage_location %}
+                <p class="card-text">🗂️ 보관 장소: {{ item.storage_location }}</p>
+              {% endif %}
               <p class="card-text">🕒 {{ item.acquisition_time }}</p>
               <p class="card-text">👤 {{ item.found_by_name }} | 📞 {{ item.found_by_contact }}</p>
             </div>
