@@ -88,7 +88,7 @@ def admin_login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if username == 'admin' and password == 'admin123':
+        if username == 'jhysw' and password == '30506':
             session['admin'] = True
             return redirect(url_for('admin_dashboard'))
         return '로그인 실패'
