@@ -51,8 +51,8 @@ class LostItem(db.Model):
 # 댓글 모델
 class Comment(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    item_id = db.Column(db.Integer, nullable=False)
-    item_type = db.Column(db.String(10), nullable=False)  # 'found' 또는 'lost'
+    found_item_id = db.Column(db.Integer, db.ForeignKey('found_item.id'), nullable=True)
+    lost_item_id = db.Column(db.Integer, db.ForeignKey('lost_item.id'), nullable=True)
     author = db.Column(db.String(100), nullable=False)
     content = db.Column(db.Text, nullable=False)
     created_at = db.Column(db.DateTime, server_default=db.func.now())
@@ -86,7 +86,14 @@ def index():
 def add_comment(item_type, item_id):
     author = request.form['author']
     content = request.form['content']
-    comment = Comment(item_id=item_id, item_type=item_type, author=author, content=content)
+
+    if item_type == 'found':
+        comment = Comment(found_item_id=item_id, author=author, content=content)
+    elif item_type == 'lost':
+        comment = Comment(lost_item_id=item_id, author=author, content=content)
+    else:
+        return "Invalid item type", 400
+
     db.session.add(comment)
     db.session.commit()
     return redirect(url_for('index', type=item_type))
@@ -196,4 +203,4 @@ def delete_item(item_type, item_id):
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
-    app.run(debug=True, port=5003)
+    app.run(debug=True, port=5006)
