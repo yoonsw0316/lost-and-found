@@ -4,7 +4,6 @@ from werkzeug.utils import secure_filename
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 
-# Flask 애플리케이션 초기화
 app = Flask(__name__)
 app.secret_key = 'your_secret_key'
 
@@ -13,17 +12,16 @@ app.config['UPLOAD_FOLDER'] = os.path.join('static', 'uploads')
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///found_items.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
-# 데이터베이스 초기화
+# DB 설정
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 
-# 허용 확장자
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
-# 모델 정의
+# ✅ FoundItem 모델
 class FoundItem(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     item_name = db.Column(db.String(100), nullable=False)
@@ -33,17 +31,22 @@ class FoundItem(db.Model):
     found_by_contact = db.Column(db.String(100), nullable=False)
     acquisition_time = db.Column(db.String(100), nullable=False)
     photo_filename = db.Column(db.String(100), nullable=True)
-    category = db.Column(db.String(50), nullable=True)  # ✅ 분류 필드 추가
+    category = db.Column(db.String(50), nullable=True)
+    comments = db.relationship('Comment', backref='item', lazy=True, cascade="all, delete-orphan")
 
-    def __repr__(self):
-        return f'<FoundItem {self.id} - {self.item_name}>'
+# ✅ Comment 모델 추가
+class Comment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    item_id = db.Column(db.Integer, db.ForeignKey('found_item.id'), nullable=False)
+    author = db.Column(db.String(100), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, server_default=db.func.now())
 
-# 메인 페이지 (검색 및 분류 필터 포함)
+# 메인 페이지
 @app.route('/')
 def index():
     query = request.args.get('q', '').strip()
     category_filter = request.args.get('category', '')
-
     items_query = FoundItem.query
 
     if query:
@@ -57,10 +60,19 @@ def index():
         items_query = items_query.filter(FoundItem.category == category_filter)
 
     items = items_query.all()
-
     return render_template('index.html', items=items, query=query, selected_category=category_filter)
 
-# 습득물 등록 페이지
+# 댓글 추가 라우트
+@app.route('/add_comment/<int:item_id>', methods=['POST'])
+def add_comment(item_id):
+    author = request.form['author']
+    content = request.form['content']
+    comment = Comment(item_id=item_id, author=author, content=content)
+    db.session.add(comment)
+    db.session.commit()
+    return redirect(url_for('index'))
+
+# 습득물 등록
 @app.route('/add', methods=['GET', 'POST'])
 def add_item():
     if request.method == 'POST':
@@ -90,7 +102,6 @@ def add_item():
         )
         db.session.add(new_item)
         db.session.commit()
-
         return redirect(url_for('index'))
 
     return render_template('add.html')
@@ -107,7 +118,6 @@ def admin_login():
         return '로그인 실패'
     return render_template('admin_login.html')
 
-# 관리자 대시보드
 @app.route('/admin/dashboard')
 def admin_dashboard():
     if not session.get('admin'):
@@ -115,7 +125,6 @@ def admin_dashboard():
     items = FoundItem.query.all()
     return render_template('admin_dashboard.html', items=items)
 
-# 관리자 삭제
 @app.route('/admin/delete/<int:item_id>')
 def delete_item(item_id):
     if not session.get('admin'):
@@ -125,7 +134,7 @@ def delete_item(item_id):
     db.session.commit()
     return redirect(url_for('admin_dashboard'))
 
-# 초기화
+# 앱 실행
 if __name__ == '__main__':
     with app.app_context():
         db.create_all()
