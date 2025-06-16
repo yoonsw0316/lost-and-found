@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>댓글 기능 테스트</title>
+</head>
+<body>
+    <h1>댓글 목록</h1>
+    <ul>
+        {% for c in comments %}
+            <li><strong>{{ c[2] }}</strong> ({{ c[4] }}): {{ c[3] }}</li>
+        {% else %}
+            <li>등록된 댓글이 없습니다.</li>
+        {% endfor %}
+    </ul>
+
+    <h2>댓글 작성하기</h2>
+    <form action="{{ url_for('add_comment') }}" method="post">
+        <input type="hidden" name="item_id" value="1">
+        <p><input type="text" name="author" placeholder="작성자" required></p>
+        <p><textarea name="content" placeholder="댓글 내용" required></textarea></p>
+        <p><button type="submit">등록</button></p>
+    </form>
+</body>
+</html>

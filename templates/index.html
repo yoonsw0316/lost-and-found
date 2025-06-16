@@ -69,8 +69,7 @@
                 <p class="card-text">🗂️ 보관 장소: {{ item.storage_location }}</p>
               {% endif %}
               <p class="card-text">🕒 {{ item.acquisition_time }}</p>
-              <p class="card-text">👤 {{ item.found_by_name }}</p>
-              <p class="card-text">💬 {{ item.found_by_contact }}</p>
+              <p class="card-text">👤 {{ item.found_by_name }} | 📞 {{ item.found_by_contact }}</p>
               <p class="card-text">🏷️ 분류: {{ item.category }}</p>
 
               <!-- 댓글 영역 -->
